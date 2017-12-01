@@ -4,6 +4,8 @@
 #include <string>
 #include <cstring>
 
+#include "model.h"
+#include "constants.h"
 
 using namespace  std;
 
@@ -14,7 +16,7 @@ bool breakdownActive = false;
 int requirementsGeneratedDuringBreakdown = 0;
 // global objects:
 Histogram Table("Customer Requirements",0,25,20);
-Histogram TicketQueueTable("Ticket Queue Table", 0, 25, 20);
+Histogram TicketQueueTable("Ticket Queue Table", 5000, 2500, 20);
 Store liveChat("LiveChat", 5);
 Queue waitTickets("Waiting Tickets");
 Queue waitTicketsBackend("Waiting Tickets for technician");
@@ -110,7 +112,7 @@ class CustomerRequirement : public Process {
 		//Table(Time-Prichod);          
 	}
 };
-class breakDownGenerator : public Process {
+class BreakdownGenerator : public Process {
 	void Behavior() {		
 		Wait(Exponential(30*24*60*60));
 		double repairTime = Exponential(60*30);
@@ -162,7 +164,7 @@ int main(int argc, char** argv) {
 	Init(0,simulationTime);
 
 	(new Generator)->Activate();
-	(new breakDownGenerator)->Activate();
+	(new BreakdownGenerator)->Activate();
 	(new SupportWorker)->Activate(); 
 	(new BackendWorker)->Activate();
 	Run();                  
