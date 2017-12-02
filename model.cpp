@@ -16,6 +16,9 @@ bool breakdownActive = false;
 int requirementsGeneratedDuringBreakdown = 0;
 bool liveChatOn = true;
 
+bool extraWorker = false;
+int extraWorkerHours[3];
+
 // global objects:
 Histogram CustomerRequirementsTable("Customer Requirements",0, 1000, 20);
 Histogram TicketQueueTable("Ticket Queue Table", 0, 1000, 20);
@@ -171,28 +174,44 @@ void parseArgs(int argc, char** argv){
 	try {
 		simulationTime = std::stoi(argv[1]);
 	} catch(std::exception const &e){
-		//std::cout << "Error parsing arguments \n";
+		std::cout << "Error parsing arguments \n";
 		//exit(EXIT_FAILURE);
 	}
 	for(int i = 1; i < argc; i++){
 		if(strcmp(argv[i], "--no-livechat") == 0){
 			liveChatOn = false;
 		}
+		if(strcmp(argv[i], "--extra-worker") == 0){
+			try{
+				extraWorkerHours[0] = std::stoi(argv[i+1]);
+				extraWorkerHours[1] = std::stoi(argv[i+2]);
+				extraWorkerHours[2] = std::stoi(argv[i+3]);
+				extraWorker = true;
+			}catch(std::exception const &e){
+				std::cout << "Error parsing arguments \n";		
+			}
+		}
 	}
 }
 int main(int argc, char** argv) {                 
-  	Print("Support model\n");
-  	SetOutput("model.out");
+  	Print("Running simulation of technical support model\n");
+  	//SetOutput("model.out");
   	parseArgs(argc, argv);
+	// INITIALIZE SIMULATION
 	RandomSeed(time(NULL));
 	Init(0,simulationTime);
-
 	(new Generator)->Activate();
 	(new BreakdownGenerator)->Activate();
+	(new BackendWorker)->Activate();
 	SupportWorker* supportWorker1 = (new SupportWorker(11, 16, 21));
 	supportWorker1->Activate(); 
-	(new BackendWorker)->Activate();
-	Run();                  
+	SupportWorker* supportWorker2 = (new SupportWorker(extraWorkerHours[0], extraWorkerHours[1], extraWorkerHours[2]));
+	if(extraWorker){
+		supportWorker2->Activate(); 
+	}
+
+	Run(); 
+	// LOG TO OUTPUT FILE                 
   	liveChat.Output();
 	CustomerRequirementsTable.Output();
 	TicketQueueTable.Output();
@@ -202,6 +221,9 @@ int main(int argc, char** argv) {
 	Print("Total number of breakdowns: %d\n", breakdowns);
 	Print("Requirements during breakdown: %d\n", requirementsGeneratedDuringBreakdown);
 	Print("Support worker 1 spent %d seconds working\n", supportWorker1->timeSpentWorking);
+	if(extraWorker){
+		Print("Support worker 2 spent %d seconds working\n", supportWorker2->timeSpentWorking);
+	}
 	return 0;
 }
 
