@@ -25,7 +25,7 @@ Queue waitTicketsBackend("Waiting Tickets for technician");
  * Returns current time of time day in seconds
  */
 int getTod(){
-	return (int)(Time)%(86400); 
+	return (int)(Time)%(DAY); 
 }
 int weekendTimeLeft(){
 	if((int)(Time) % (WEEK) > 5*DAY){
@@ -56,15 +56,15 @@ class SupportWorker : public Process {
 				
 			}else{
 				int tod = getTod();
-				if(tod < (11*60*60)){
-					Wait((11*60*60) - tod + Uniform(0, 60*60));
-				}else if(tod < (16*60*60)){
-					Wait((16*60*60) - tod + Uniform(0,60*60));
-				}else if(tod < (21*60*60)){
-					Wait((21*60*60) - tod + Uniform(0,30*60));
+				if(tod < (11*HOUR)){
+					Wait((11*HOUR) - tod + Uniform(0, HOUR));
+				}else if(tod < (16*HOUR)){
+					Wait((16*HOUR) - tod + Uniform(0,HOUR));
+				}else if(tod < (21*HOUR)){
+					Wait((21*HOUR) - tod + Uniform(0,HOUR));
 				}else {
-					Wait(86400 - tod);
-					Wait((11*60*60) + Uniform(0, 60*60));
+					Wait(DAY - tod);
+					Wait((11*HOUR) + Uniform(0, HOUR));
 				}
 			}			
 		}
@@ -75,20 +75,20 @@ class BackendWorker : public Process {
 		while(true){
 			if(!waitTicketsBackend.Empty()){
 				if(Random()<0.3){
-					Wait(Exponential(2*60));
+					Wait(Exponential(2*MINUTE));
 				}else{
-					Wait(Exponential(30*60));
+					Wait(Exponential(30*MINUTE));
 				}
 				waitTicketsBackend.GetFirst()->Activate();
 			}else{
 				int tod = getTod();
-				if(tod < (8*60*60)){
-					Wait((8*60*60) - tod + Uniform(0,60*60));
-				}else if(tod > (22*60*60)){
-					Wait((86400-tod));
-					Wait((8*60*60) + Uniform(0,60*60));
+				if(tod < (8*HOUR)){
+					Wait((8*HOUR) - tod + Uniform(0,HOUR));
+				}else if(tod > (22*HOUR)){
+					Wait((DAY-tod));
+					Wait((8*HOUR) + Uniform(0,HOUR));
 				}else {
-					Wait(Uniform(0, 2*60*60));
+					Wait(Uniform(0, 2*HOUR));
 				}
 			}
 		}
@@ -99,13 +99,13 @@ class CustomerRequirement : public Process {
 	void  Behavior() {              
 		Prichod = Time;   
 		int tod = getTod(); 
-		if(tod > (12*60*60) && tod < (18*60*60) && Random() < 0.85 && !liveChat.Full() && weekendTimeLeft() == 0){
+		if(tod > (12*HOUR) && tod < (18*HOUR) && Random() < 0.85 && !liveChat.Full() && weekendTimeLeft() == 0){
 			// goes to live chat
 			Enter(liveChat);
 			if(Random() < 0.5){
-				Wait(Exponential(120));
+				Wait(Exponential(2*MINUTE));
 			}else{
-				Wait(Exponential(15*60));
+				Wait(Exponential(15*MINUTE));
 			}
 			Leave(liveChat);
 			// some problems can't be solved via livechat and need to write a ticket
@@ -119,8 +119,8 @@ class CustomerRequirement : public Process {
 };
 class BreakdownGenerator : public Process {
 	void Behavior() {		
-		Wait(Exponential(30*24*60*60));
-		double repairTime = Exponential(60*30);
+		Wait(Exponential(4*WEEK));
+		double repairTime = Exponential(30*MINUTE);
 		breakdownActive = true;
 		breakdowns++;
 		Wait(repairTime);
@@ -134,9 +134,9 @@ class Generator : public Event {
 		//calculate the time of the day in order to adjust activation time
 		int tod = getTod();
 		double timeToNextRequest = 0;
-		if(tod < (12*60*60)){
+		if(tod < (12*HOUR)){
 			timeToNextRequest = 2057;
-		}else if(tod < (18*60*60)){
+		}else if(tod < (18*HOUR)){
 			timeToNextRequest = 323;
 		}else{
 			timeToNextRequest = 232;
