@@ -14,6 +14,8 @@ int simulationTime = 0;
 int breakdowns = 0;
 bool breakdownActive = false;
 int requirementsGeneratedDuringBreakdown = 0;
+bool liveChatOn = true;
+
 // global objects:
 Histogram CustomerRequirementsTable("Customer Requirements",0, 1500, 20);
 Histogram TicketQueueTable("Ticket Queue Table", 0, 1500, 20);
@@ -99,8 +101,9 @@ class CustomerRequirement : public Process {
 	double Prichod;                 
 	void  Behavior() {              
 		Prichod = Time;   
-		int tod = getTod(); 
-		if(tod > (12*HOUR) && tod < (18*HOUR) && Random() < 0.85 && !liveChat.Full() && weekendTimeLeft() == 0){
+		int tod = getTod();
+		// IF live chat is on and not full 
+		if(liveChatOn && tod > (12*HOUR) && tod < (18*HOUR) && Random() < 0.85 && !liveChat.Full() && weekendTimeLeft() == 0){
 			// goes to live chat
 			Enter(liveChat);
 			if(Random() < 0.5){
@@ -151,16 +154,18 @@ class Generator : public Event {
   	}
 };
 void parseArgs(int argc, char** argv){
-	//TODO REMOVE REMOVE REMOVE
-	simulationTime = 86400;  
 	simulationTime = WEEK;
-	return;
 
 	try {
 		simulationTime = std::stoi(argv[1]);
 	} catch(std::exception const &e){
 		std::cout << "Error parsing arguments \n";
-		exit(EXIT_FAILURE);
+		//exit(EXIT_FAILURE);
+	}
+	for(int i = 1; i < argc; i++){
+		if(strcmp(argv[i], "--no-livechat") == 0){
+			liveChatOn = false;
+		}
 	}
 }
 int main(int argc, char** argv) {                 
