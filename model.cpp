@@ -25,9 +25,7 @@ Store liveChat("LiveChat", 5);
 Queue waitTickets("Waiting Tickets");
 Queue waitTicketsBackend("Waiting Tickets for technician");
 
-/*
- * Returns current time of time day in seconds
- */
+
 int getTod(){
 	return (int)(Time)%(DAY); 
 }
@@ -36,6 +34,9 @@ int weekendTimeLeft(){
 		return (WEEK - ((int)(Time) %(WEEK)));
 	}
 	return 0;
+}
+void printHelp(){
+	cout << "TODO\n";
 }
 class Ticket : public Process {
 	double Prichod;
@@ -174,13 +175,11 @@ class Generator : public Event {
 void parseArgs(int argc, char** argv){
 	simulationTime = DAY; //default simulation time
 
-	try {
-		simulationTime = std::stoi(argv[1]);
-	} catch(std::exception const &e){
-		std::cout << "Error parsing arguments \n";
-		//exit(EXIT_FAILURE);
-	}
 	for(int i = 1; i < argc; i++){
+		if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i],"-h") == 0){
+			printHelp();
+			exit(EXIT_SUCCESS);
+		}
 		if(strcmp(argv[i], "--no-livechat") == 0){
 			liveChatOn = false;
 		}
@@ -193,6 +192,15 @@ void parseArgs(int argc, char** argv){
 			}catch(std::exception const &e){
 				std::cout << "Error parsing arguments \n";		
 			}
+		}
+		if(strcmp(argv[i], "-t") == 0){
+			try {
+				simulationTime = std::stoi(argv[i+1]);
+			} catch(std::exception const &e){
+				std::cout << "Error parsing arguments \n";
+				//exit(EXIT_FAILURE);
+			}
+
 		}
 	}
 }
