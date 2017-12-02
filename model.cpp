@@ -64,14 +64,18 @@ class SupportWorker : public Process {
 				int timeToSolveTicket = Exponential(2*MINUTE);
 				timeSpentWorking += timeToSolveTicket;
 				Wait(timeToSolveTicket);
-				if(Random() < 0.05){
-					//ticket requires backend technical worker
-					waitTicketsBackend.Insert(waitTickets.GetFirst());
-				}else{
-					//ticket solved
-					waitTickets.GetFirst()->Activate();
-				}
-				
+				if(!waitTickets.Empty()){
+					// we have to check for empty queue here since there is a chance that
+					// both support workers (if two present) will be working on the same ticket
+					// and by the time the slower gets here, the other solves it already
+					if(Random() < 0.05){
+						//ticket requires backend technical worker
+						waitTicketsBackend.Insert(waitTickets.GetFirst());
+					}else{
+						//ticket solved
+						waitTickets.GetFirst()->Activate();
+					}
+				}			
 			}else{
 				int tod = getTod();
 				if(tod < (operatingHours[0]*HOUR)){
@@ -205,8 +209,9 @@ int main(int argc, char** argv) {
 	(new BackendWorker)->Activate();
 	SupportWorker* supportWorker1 = (new SupportWorker(11, 16, 21));
 	supportWorker1->Activate(); 
-	SupportWorker* supportWorker2 = (new SupportWorker(extraWorkerHours[0], extraWorkerHours[1], extraWorkerHours[2]));
+	SupportWorker* supportWorker2;
 	if(extraWorker){
+		supportWorker2 = (new SupportWorker(extraWorkerHours[0], extraWorkerHours[1], extraWorkerHours[2]));
 		supportWorker2->Activate(); 
 	}
 
