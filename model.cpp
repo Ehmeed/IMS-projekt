@@ -17,8 +17,8 @@ int requirementsGeneratedDuringBreakdown = 0;
 bool liveChatOn = true;
 
 // global objects:
-Histogram CustomerRequirementsTable("Customer Requirements",0, 1500, 20);
-Histogram TicketQueueTable("Ticket Queue Table", 0, 1500, 20);
+Histogram CustomerRequirementsTable("Customer Requirements",0, 1000, 20);
+Histogram TicketQueueTable("Ticket Queue Table", 0, 1000, 20);
 Store liveChat("LiveChat", 5);
 Queue waitTickets("Waiting Tickets");
 Queue waitTicketsBackend("Waiting Tickets for technician");
@@ -53,10 +53,14 @@ class SupportWorker : public Process {
 			operatingHours[1] = oh1;
 			operatingHours[2] = oh2;
 		}
+		int timeSpentWorking = 0;
+
 	void Behavior(){
 		while(true){
 			if(!waitTickets.Empty()){
-				Wait(Exponential(300));
+				int timeToSolveTicket = Exponential(2*MINUTE);
+				timeSpentWorking += timeToSolveTicket;
+				Wait(timeToSolveTicket);
 				if(Random() < 0.05){
 					//ticket requires backend technical worker
 					waitTicketsBackend.Insert(waitTickets.GetFirst());
@@ -162,7 +166,7 @@ class Generator : public Event {
   	}
 };
 void parseArgs(int argc, char** argv){
-	simulationTime = WEEK; //default simulation time
+	simulationTime = DAY; //default simulation time
 
 	try {
 		simulationTime = std::stoi(argv[1]);
@@ -185,7 +189,8 @@ int main(int argc, char** argv) {
 
 	(new Generator)->Activate();
 	(new BreakdownGenerator)->Activate();
-	(new SupportWorker(11, 16, 21))->Activate(); 
+	SupportWorker* supportWorker1 = (new SupportWorker(11, 16, 21));
+	supportWorker1->Activate(); 
 	(new BackendWorker)->Activate();
 	Run();                  
   	liveChat.Output();
@@ -196,6 +201,7 @@ int main(int argc, char** argv) {
 	Print("Simulation run for %d seconds\n", simulationTime);
 	Print("Total number of breakdowns: %d\n", breakdowns);
 	Print("Requirements during breakdown: %d\n", requirementsGeneratedDuringBreakdown);
+	Print("Support worker 1 spent %d seconds working\n", supportWorker1->timeSpentWorking);
 	return 0;
 }
 
