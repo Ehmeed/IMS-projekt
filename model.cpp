@@ -27,6 +27,12 @@ Queue waitTicketsBackend("Waiting Tickets for technician");
 int getTod(){
 	return (int)(Time)%(86400); 
 }
+int weekendTimeLeft(){
+	if((int)(Time) % (WEEK) > 5*DAY){
+		return (WEEK - ((int)(Time) %(WEEK)));
+	}
+	return 0;
+}
 class Ticket : public Process {
 	double Prichod;
 	void Behavior(){
@@ -93,7 +99,7 @@ class CustomerRequirement : public Process {
 	void  Behavior() {              
 		Prichod = Time;   
 		int tod = getTod(); 
-		if(tod > (12*60*60) && tod < (18*60*60) && Random() < 0.85 && !liveChat.Full()){
+		if(tod > (12*60*60) && tod < (18*60*60) && Random() < 0.85 && !liveChat.Full() && weekendTimeLeft() == 0){
 			// goes to live chat
 			Enter(liveChat);
 			if(Random() < 0.5){
@@ -146,6 +152,7 @@ class Generator : public Event {
 void parseArgs(int argc, char** argv){
 	//TODO REMOVE REMOVE REMOVE
 	simulationTime = 86400;  
+	simulationTime = WEEK;
 	return;
 
 	try {
@@ -155,7 +162,6 @@ void parseArgs(int argc, char** argv){
 		exit(EXIT_FAILURE);
 	}
 }
-
 int main(int argc, char** argv) {                 
   	Print("Support model\n");
   	SetOutput("model.out");
@@ -176,6 +182,6 @@ int main(int argc, char** argv) {
 	Print("Simulation run for %d seconds\n", simulationTime);
 	Print("Total number of breakdowns: %d\n", breakdowns);
 	Print("Requirements during breakdown: %d\n", requirementsGeneratedDuringBreakdown);
- 	return 0;
+	return 0;
 }
 

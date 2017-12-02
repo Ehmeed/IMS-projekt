@@ -4,6 +4,7 @@
 
 
 int getTod();
+int weekendTimeLeft();
 void parseArgs();
 
 class Ticket;
