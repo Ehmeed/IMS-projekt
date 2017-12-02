@@ -5,7 +5,6 @@
 #include <cstring>
 
 #include "model.h"
-#include "constants.h"
 
 using namespace  std;
 

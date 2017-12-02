@@ -2,6 +2,14 @@
  * File model.h
 */
 
+/*
+ * CONSTANTS
+ */
+const int MINUTE = 60;
+const int HOUR = 3600;
+const int DAY = 86400;
+const int WEEK = 604800;
+
 
 /*
  * Returns current time of the day in seconds
