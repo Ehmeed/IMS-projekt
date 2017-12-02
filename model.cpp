@@ -46,6 +46,13 @@ class Ticket : public Process {
 	}
 };
 class SupportWorker : public Process {
+	int operatingHours[3];
+	public:
+		SupportWorker(int oh0, int oh1, int oh2) : Process(){
+			operatingHours[0] = oh0;
+			operatingHours[1] = oh1;
+			operatingHours[2] = oh2;
+		}
 	void Behavior(){
 		while(true){
 			if(!waitTickets.Empty()){
@@ -54,20 +61,21 @@ class SupportWorker : public Process {
 					//ticket requires backend technical worker
 					waitTicketsBackend.Insert(waitTickets.GetFirst());
 				}else{
+					//ticket solved
 					waitTickets.GetFirst()->Activate();
 				}
 				
 			}else{
 				int tod = getTod();
-				if(tod < (11*HOUR)){
-					Wait((11*HOUR) - tod + Uniform(0, HOUR));
-				}else if(tod < (16*HOUR)){
-					Wait((16*HOUR) - tod + Uniform(0,HOUR));
-				}else if(tod < (21*HOUR)){
-					Wait((21*HOUR) - tod + Uniform(0,HOUR));
+				if(tod < (operatingHours[0]*HOUR)){
+					Wait((operatingHours[0]*HOUR) - tod + Uniform(0, HOUR));
+				}else if(tod < (operatingHours[1]*HOUR)){
+					Wait((operatingHours[1]*HOUR) - tod + Uniform(0,HOUR));
+				}else if(tod < (operatingHours[2]*HOUR)){
+					Wait((operatingHours[2]*HOUR) - tod + Uniform(0,HOUR));
 				}else {
 					Wait(DAY - tod);
-					Wait((11*HOUR) + Uniform(0, HOUR));
+					Wait((operatingHours[0]*HOUR) + Uniform(0, HOUR));
 				}
 			}			
 		}
@@ -154,12 +162,12 @@ class Generator : public Event {
   	}
 };
 void parseArgs(int argc, char** argv){
-	simulationTime = WEEK;
+	simulationTime = WEEK; //default simulation time
 
 	try {
 		simulationTime = std::stoi(argv[1]);
 	} catch(std::exception const &e){
-		std::cout << "Error parsing arguments \n";
+		//std::cout << "Error parsing arguments \n";
 		//exit(EXIT_FAILURE);
 	}
 	for(int i = 1; i < argc; i++){
@@ -177,7 +185,7 @@ int main(int argc, char** argv) {
 
 	(new Generator)->Activate();
 	(new BreakdownGenerator)->Activate();
-	(new SupportWorker)->Activate(); 
+	(new SupportWorker(11, 16, 21))->Activate(); 
 	(new BackendWorker)->Activate();
 	Run();                  
   	liveChat.Output();
