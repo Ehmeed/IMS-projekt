@@ -16,7 +16,7 @@ bool breakdownActive = false;
 int requirementsGeneratedDuringBreakdown = 0;
 // global objects:
 Histogram Table("Customer Requirements",0,25,20);
-Histogram TicketQueueTable("Ticket Queue Table", 5000, 2500, 20);
+Histogram TicketQueueTable("Ticket Queue Table", 0, 1500, 20);
 Store liveChat("LiveChat", 5);
 Queue waitTickets("Waiting Tickets");
 Queue waitTicketsBackend("Waiting Tickets for technician");
@@ -115,7 +115,6 @@ class CustomerRequirement : public Process {
 		}else {
 			(new Ticket)->Activate();
 		}            
-		//Table(Time-Prichod);          
 	}
 };
 class BreakdownGenerator : public Process {
@@ -175,7 +174,7 @@ int main(int argc, char** argv) {
 	(new BackendWorker)->Activate();
 	Run();                  
   	liveChat.Output();
-	Table.Output();
+	//Table.Output();
 	TicketQueueTable.Output();
 	waitTickets.Output();
 	waitTicketsBackend.Output();
