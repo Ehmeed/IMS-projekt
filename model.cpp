@@ -15,7 +15,7 @@ int breakdowns = 0;
 bool breakdownActive = false;
 int requirementsGeneratedDuringBreakdown = 0;
 // global objects:
-Histogram Table("Customer Requirements",0,25,20);
+Histogram CustomerRequirementsTable("Customer Requirements",0, 1500, 20);
 Histogram TicketQueueTable("Ticket Queue Table", 0, 1500, 20);
 Store liveChat("LiveChat", 5);
 Queue waitTickets("Waiting Tickets");
@@ -40,6 +40,7 @@ class Ticket : public Process {
 		Into(waitTickets);
 		Passivate();
 		TicketQueueTable(Time-Prichod);
+		CustomerRequirementsTable(Time-Prichod);
 	}
 };
 class SupportWorker : public Process {
@@ -108,6 +109,7 @@ class CustomerRequirement : public Process {
 				Wait(Exponential(15*MINUTE));
 			}
 			Leave(liveChat);
+			CustomerRequirementsTable(Time - Prichod);
 			// some problems can't be solved via livechat and need to write a ticket
 			if(Random() < 0.1){
 				(new Ticket)->Activate();				
@@ -174,7 +176,7 @@ int main(int argc, char** argv) {
 	(new BackendWorker)->Activate();
 	Run();                  
   	liveChat.Output();
-	//Table.Output();
+	CustomerRequirementsTable.Output();
 	TicketQueueTable.Output();
 	waitTickets.Output();
 	waitTicketsBackend.Output();
