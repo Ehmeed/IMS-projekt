@@ -126,9 +126,11 @@ class CustomerRequirement : public Process {
 			// goes to live chat
 			Enter(liveChat);
 			if(Random() < 0.5){
-				Wait(Exponential(2*MINUTE));
+				int shortConversation = Exponential(2*MINUTE);
+				Wait(shortConversation);
 			}else{
-				Wait(Exponential(15*MINUTE));
+				int longConversation = Exponential(15*MINUTE);
+				Wait(longConversation);
 			}
 			Leave(liveChat);
 			CustomerRequirementsTable(Time - Prichod);
@@ -161,20 +163,22 @@ class Generator : public Event {
 		if(tod < (12*HOUR)){
 			timeToNextRequest = 2057;
 		}else if(tod < (18*HOUR)){
-			timeToNextRequest = 323;
+			timeToNextRequest = 280;
+		}else if(tod < (22*HOUR)){
+			timeToNextRequest = 305;
 		}else{
-			timeToNextRequest = 232;
+			timeToNextRequest = 500;
 		}
 		if(breakdownActive){
 			timeToNextRequest *= 0.1;
 			requirementsGeneratedDuringBreakdown++;
 		}
-		Activate(Time+Normal(timeToNextRequest, 0.02));
+		Activate(Time+Normal(timeToNextRequest, 0.1));
   	}
 };
 void parseArgs(int argc, char** argv){
-	simulationTime = DAY; //default simulation time
-
+	simulationTime = WEEK; //default simulation time
+	//TODO error on wrong args
 	for(int i = 1; i < argc; i++){
 		if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i],"-h") == 0){
 			printHelp();
@@ -214,7 +218,7 @@ int main(int argc, char** argv) {
 	(new Generator)->Activate();
 	(new BreakdownGenerator)->Activate();
 	(new BackendWorker)->Activate();
-	SupportWorker* supportWorker1 = (new SupportWorker(11, 16, 21));
+	SupportWorker* supportWorker1 = (new SupportWorker(11, 16, 20));
 	supportWorker1->Activate(); 
 	SupportWorker* supportWorker2;
 	if(extraWorker){
