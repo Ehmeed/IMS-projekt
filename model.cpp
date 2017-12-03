@@ -125,7 +125,7 @@ class CustomerRequirement : public Process {
 		if(liveChatOn && tod > (12*HOUR) && tod < (18*HOUR) && Random() < 0.85 && !liveChat.Full() && weekendTimeLeft() == 0){
 			// goes to live chat
 			Enter(liveChat);
-			if(Random() < 0.5){
+			if(Random() < 0.6){
 				int shortConversation = Exponential(2*MINUTE);
 				Wait(shortConversation);
 			}else{
