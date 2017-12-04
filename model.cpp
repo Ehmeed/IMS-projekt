@@ -37,7 +37,13 @@ int weekendTimeLeft(){
 	return 0;
 }
 void printHelp(){
-	cout << "TODO\n";
+	cout << "\n";
+	cout << "usage: model [-t time] [--no-livechat] [--extra-worker t1 t2 t3] [--out file]\n";
+	cout << " -t             - sets the time of simulation to {time} seconds (default is 604800) \n";
+	cout << " --no-livechat  - removes the livechat worker from simulation\n";
+	cout << " --extra-worker - adds extra support worker with working hours t1, t2, t3\n";
+	cout << " --out          - sets output file to {file} (default is stdout)\n";
+	cout << "\n";
 }
 class Ticket : public Process {
 	double Prichod;
@@ -240,11 +246,11 @@ int main(int argc, char** argv) {
 
 	Run(); 
 	// LOG TO OUTPUT FILE                 
-  	liveChat.Output();
-	CustomerRequirementsTable.Output();
 	TicketQueueTable.Output();
 	waitTickets.Output();
 	waitTicketsBackend.Output();
+  	liveChat.Output();
+	CustomerRequirementsTable.Output();
 	Print("Simulation run for %d seconds\n", simulationTime);
 	Print("Total number of breakdowns: %d\n", breakdowns);
 	Print("Requirements during breakdown: %d\n", requirementsGeneratedDuringBreakdown);
