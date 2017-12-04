@@ -17,6 +17,7 @@ bool liveChatOn = true;
 
 bool extraWorker = false;
 int extraWorkerHours[3];
+string outFile = "";
 
 // global objects:
 Histogram CustomerRequirementsTable("Customer Requirements",0, 1000, 20);
@@ -194,7 +195,8 @@ void parseArgs(int argc, char** argv){
 				extraWorkerHours[2] = std::stoi(argv[i+3]);
 				extraWorker = true;
 			}catch(std::exception const &e){
-				std::cout << "Error parsing arguments \n";		
+				std::cout << "Error parsing arguments \n";	
+				exit(EXIT_FAILURE);	
 			}
 		}
 		if(strcmp(argv[i], "-t") == 0){
@@ -202,16 +204,26 @@ void parseArgs(int argc, char** argv){
 				simulationTime = std::stoi(argv[i+1]);
 			} catch(std::exception const &e){
 				std::cout << "Error parsing arguments \n";
-				//exit(EXIT_FAILURE);
+				exit(EXIT_FAILURE);
 			}
 
+		}
+		if(strcmp(argv[i], "--out") == 0){
+			try{
+				outFile = string(argv[i+1]);
+			}catch(std::exception const &e){
+				std::cout << "Error parsing arguments \n";
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 }
 int main(int argc, char** argv) {                 
   	Print("Running simulation of technical support model\n");
-  	//SetOutput("model.out");
   	parseArgs(argc, argv);
+  	if(strcmp(outFile.c_str(), "") != 0){
+		SetOutput(outFile.c_str());
+	}
 	// INITIALIZE SIMULATION
 	RandomSeed(time(NULL));
 	Init(0,simulationTime);
