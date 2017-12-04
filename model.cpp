@@ -241,10 +241,10 @@ int main(int argc, char** argv) {
 	Run(); 
 	// LOG TO OUTPUT FILE                 
   	liveChat.Output();
-	CustomerRequirementsTable.Output();
 	TicketQueueTable.Output();
 	waitTickets.Output();
 	waitTicketsBackend.Output();
+	CustomerRequirementsTable.Output();
 	Print("Simulation run for %d seconds\n", simulationTime);
 	Print("Total number of breakdowns: %d\n", breakdowns);
 	Print("Requirements during breakdown: %d\n", requirementsGeneratedDuringBreakdown);
