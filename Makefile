@@ -7,7 +7,6 @@ client:
 	$(CPP) $(CPFLAGS) model.cpp -o model -lm -lsimlib
 run:
 	./model
-	cat model.out
 
 
 
